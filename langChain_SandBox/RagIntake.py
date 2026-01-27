@@ -1,6 +1,7 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
+from sqlalchemy import text
+from ChunkClass import ChunkClass, CreateChunk
 file_path = r"ExampleData\DnD_BasicRules_2018.pdf"
 file_path2 = r"ExampleData\IBJJF-Rules-Version-4.pdf"
 loadFile = PyPDFLoader(file_path) 
@@ -29,6 +30,16 @@ def filter_Junk(texts, junk_markers):
     return filtered_texts
 
 filtered_texts = filter_Junk(texts, junk_markers)
+
+chunkDataList = []
+for text in filtered_texts:
+    chunkData = CreateChunk(
+        chunk_id=f"{file_path}_p{text.metadata['page']}_{text.metadata['start_index']}",
+        content=text.page_content,
+        page=text.metadata['page'],
+        source=file_path
+    )
+    chunkDataList.append(chunkData)
 
 #print(f"Number of text chunks: {len(texts)}")
 #print(f"First text chunk:\n{texts[15].metadata['page']}\n{texts[15].page_content}")
